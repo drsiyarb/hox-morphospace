@@ -1,0 +1,29 @@
+# ── Large source data (download separately from flycellatlas.org) ──
+*.h5ad
+s_fca_biohub_body_10x.h5ad
+
+# ── Separate side-project, not part of this repo ──
+haltere/
+
+# ── Stale / duplicate build outputs ──
+hox_morphospace_explorer_v0.1.html
+fig1_preview.png
+
+# ── Blender working/backup files ──
+*.blend
+*.blend1
+
+# ── Python ──
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# ── OS / editor cruft ──
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
