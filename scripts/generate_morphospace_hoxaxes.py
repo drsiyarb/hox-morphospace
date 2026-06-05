@@ -13,7 +13,7 @@ OUTPUT_DIR = r"C:\Users\siyar\Downloads\flycellatlas_hox_output"
 H5AD_PATH  = r"C:\Users\siyar\Downloads\s_fca_biohub_body_10x.h5ad"
 HOX_GENES = ['lab', 'pb', 'Dfd', 'Scr', 'Antp', 'Ubx', 'abd-A', 'Abd-B']
 
-# ── Load ─────────────────────────────────────────────────────────────────────
+# ââ Load âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 print("Loading ...")
 df = pd.read_csv(f"{OUTPUT_DIR}/hox_morphospace_boxcentered.csv")
 pc1 = df['pc1'].values; pc2 = df['pc2'].values; pc3 = df['pc3'].values
@@ -35,7 +35,7 @@ for i in np.where(labels==7)[0]:
     else: labels[i]=35
 for cl in [12,15,16,27]: labels[labels==cl]=36
 
-# ── Load Hox expression ────────────────────────────────────────────────────
+# ââ Load Hox expression ââââââââââââââââââââââââââââââââââââââââââââââââââââ
 print("Loading h5ad ...")
 adata = sc.read_h5ad(H5AD_PATH)
 gn = list(adata.var_names)
@@ -58,19 +58,19 @@ H1 = Antp - Ubx
 H2 = abdA - AbdB
 H3 = (Antp + Ubx) - (abdA + AbdB)
 
-# ── In H1/H2/H3 space, the coordinate planes are trivially axis-aligned ─────
-# H1=0 → normal is [1,0,0], H2=0 → [0,1,0], H3=0 → [0,0,1]
+# ââ In H1/H2/H3 space, the coordinate planes are trivially axis-aligned âââââ
+# H1=0 â normal is [1,0,0], H2=0 â [0,1,0], H3=0 â [0,0,1]
 data_center_h = np.array([H1.mean(), H2.mean(), H3.mean()])
 print(f"  Data center in H space: {data_center_h.round(4)}")
 print(f"  H1 range: [{H1.min():.3f}, {H1.max():.3f}]")
 print(f"  H2 range: [{H2.min():.3f}, {H2.max():.3f}]")
 print(f"  H3 range: [{H3.min():.3f}, {H3.max():.3f}]")
 
-# ── Extract top 200 variable genes for Gene Search panel ─────────────────
+# ââ Extract top 200 variable genes for Gene Search panel âââââââââââââââââ
 print("Building gene search bank (top 200 variable genes) ...")
 KNOWN_GENES = set(HOX_GENES) | {'inv', 'ap', 'vg', 'Dll', 'dpp', 'wg', 'hh'}
 
-X_sp = adata.X[hox_mask]  # sparse, 38k × n_genes
+X_sp = adata.X[hox_mask]  # sparse, 38k Ã n_genes
 _mean = np.array(X_sp.mean(axis=0)).ravel()
 _msq  = np.array(X_sp.multiply(X_sp).mean(axis=0)).ravel() if hasattr(X_sp,'multiply') \
         else np.mean(np.array(X_sp)**2, axis=0)
@@ -103,7 +103,7 @@ for gi in ranked_gi:
 print(f"  Gene bank: {len(gene_bank)} genes (top by variance, excl. Hox/TF)")
 del X_sp, _mean, _msq, _var, ranked_gi  # free memory
 
-# ── Normalise for heatmap ────────────────────────────────────────────────────
+# ââ Normalise for heatmap ââââââââââââââââââââââââââââââââââââââââââââââââââââ
 all_cl = [4,11,5,0,26,18,1,36,13,8,2,9,6,10,14,19,30,31,32,33,34,35]
 corr_mask = np.isin(labels, all_cl)
 corr_idx = np.where(corr_mask)[0]
@@ -116,7 +116,7 @@ def get_expr(cl):
     ci = [idx_map[i] for i in np.where(labels==cl)[0] if i in idx_map]
     return X_renorm[ci].mean(0) if ci else np.zeros(8)
 
-# ── Helpers ──────────────────────────────────────────────────────────────────
+# ââ Helpers ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 def hex_to_rgb(h):
     h = h.lstrip('#')
     return int(h[0:2],16), int(h[2:4],16), int(h[4:6],16)
@@ -137,7 +137,7 @@ def cl_name(c):
     if c==36: return "C12/15/16/27"
     return f"C{c}"
 
-# ── Pairs with dark/light shades ─────────────────────────────────────────────
+# ââ Pairs with dark/light shades âââââââââââââââââââââââââââââââââââââââââââââ
 PAIRS_RAW = [
     (4, 11, '#0000CD'), (5, 0, '#CC0000'), (26,18, '#006400'),
     (1, 36, '#C71585'), (13, 8, '#7B2D8E'), (2, 9, '#CC8400'),
@@ -188,11 +188,11 @@ all_labels_set = sorted(set(labels))
 for cl in all_labels_set:
     if cl not in color_map: color_map[cl] = UNMATCHED_COLOR
 
-# ── Build figure ─────────────────────────────────────────────────────────────
+# ââ Build figure âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 print("Building figure ...")
 fig = go.Figure()
 
-# ── 3D scatter ───────────────────────────────────────────────────────────────
+# ââ 3D scatter âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 legend_added = set()
 for p in pairs_info:
     for cl in [p['pos'], p['neg']]:
@@ -244,7 +244,7 @@ for cl in [c for c in all_labels_set if c not in paired_cls]:
     ))
     unmatched_first = False
 
-# ── 6 planes (toggleable) ───────────────────────────────────────────────────
+# ââ 6 planes (toggleable) âââââââââââââââââââââââââââââââââââââââââââââââââââ
 # Now working in H1/H2/H3 space
 h_corners = np.array([[h1,h2,h3]
     for h1 in [H1.min(), H1.max()]
@@ -279,22 +279,22 @@ def add_plane(fig, centroid, normal, name, color_str, opacity=0.7, bounds_pts=No
         legend='legend3', visible='legendonly',
     ))
 
-# 3 Hox coordinate planes — in H-space these are trivially axis-aligned
+# 3 Hox coordinate planes â in H-space these are trivially axis-aligned
 origin_h = np.array([0., 0., 0.])
 add_plane(fig, origin_h, np.array([1.,0.,0.]), 'H1=0: Antp=Ubx', 'rgba(30,100,220,0.7)')
 add_plane(fig, origin_h, np.array([0.,1.,0.]), 'H2=0: abdA=AbdB', 'rgba(220,50,50,0.7)')
 add_plane(fig, origin_h, np.array([0.,0.,1.]), 'H3=0: thoracic=abdominal', 'rgba(220,180,0,0.7)')
 
 # 3 Geometric morphospace (U/V/W) planes projected into H-space
-# Fit H1/H2/H3 → U/V/W mapping, then find normals in H-space
+# Fit H1/H2/H3 â U/V/W mapping, then find normals in H-space
 H_stack = np.column_stack([H1, H2, H3, np.ones(len(H1))])
 UVW_stack = np.column_stack([U, V, W])
 M_h2uvw_full, _, _, _ = np.linalg.lstsq(H_stack, UVW_stack, rcond=None)
 M_lin = M_h2uvw_full[:3, :]   # 3x3 linear part
 M_off = M_h2uvw_full[3, :]    # 1x3 offset
 
-# W=plane_W in UVW → find centroid and normal in H-space
-# U=0 normal in UVW is [1,0,0] → in H-space: M_lin^(-T) @ [1,0,0]
+# W=plane_W in UVW â find centroid and normal in H-space
+# U=0 normal in UVW is [1,0,0] â in H-space: M_lin^(-T) @ [1,0,0]
 M_lin_invT = np.linalg.inv(M_lin).T
 
 for uvw_name, uvw_normal, uvw_cent_val, geom_color in [
@@ -314,7 +314,7 @@ for uvw_name, uvw_normal, uvw_cent_val, geom_color in [
     cent_h_geom = np.array([H1[near_mask].mean(), H2[near_mask].mean(), H3[near_mask].mean()])
     add_plane(fig, cent_h_geom, n_h, uvw_name, geom_color, opacity=0.5)
 
-# ── Possibility space hull (natively in H1/H2/H3) ──────────────────────────
+# ââ Possibility space hull (natively in H1/H2/H3) ââââââââââââââââââââââââââ
 print("Computing possibility space ...")
 n_grid = 25   # 25^4 = 390,625 combinations
 gv = np.linspace(0, 1, n_grid)
@@ -341,7 +341,7 @@ for tri in ps_hull.simplices:
     if all(m is not None for m in mapped):
         ps_fi.append(mapped[0]); ps_fj.append(mapped[1]); ps_fk.append(mapped[2])
 
-# ── Merge coplanar triangles to find TRUE polytope edges ────────────────────
+# ââ Merge coplanar triangles to find TRUE polytope edges ââââââââââââââââââââ
 # Compute face normals for each triangle
 face_normals = []
 for fi_idx in range(len(ps_fi)):
@@ -373,7 +373,7 @@ print(f"  Polytope has {len(face_groups)} true faces (from {len(ps_fi)} triangle
 
 # An edge is a TRUE polytope edge only if its two adjacent triangles
 # belong to DIFFERENT face groups (different normals)
-edge_to_faces = {}  # edge → list of face indices
+edge_to_faces = {}  # edge â list of face indices
 for fi_idx in range(len(ps_fi)):
     verts = [ps_fi[fi_idx], ps_fj[fi_idx], ps_fk[fi_idx]]
     for a, b in combinations(verts, 2):
@@ -390,14 +390,14 @@ for edge, face_list in edge_to_faces.items():
         if len(keys) > 1:
             true_edges.add(edge)
     else:
-        # Boundary edge (only 1 face) — always a true edge
+        # Boundary edge (only 1 face) â always a true edge
         true_edges.add(edge)
 
 print(f"  True edges: {len(true_edges)} (from {len(edge_to_faces)} triangle edges)")
 
-# ── Color faces by which constraint surface they belong to ──────────────────
+# ââ Color faces by which constraint surface they belong to ââââââââââââââââââ
 # Group normals into face types for coloring
-# The zonotope has faces from: H1=±1, H2=±1, and the 4 diagonal constraint planes
+# The zonotope has faces from: H1=Â±1, H2=Â±1, and the 4 diagonal constraint planes
 face_type_colors = {}
 for key, group in face_groups.items():
     n = np.array(key)
@@ -429,7 +429,7 @@ fig.add_trace(go.Mesh3d(
     legend='legend2', visible='legendonly',
 ))
 
-# Wireframe — TRUE edges only (no internal diagonals)
+# Wireframe â TRUE edges only (no internal diagonals)
 ps_ex, ps_ey, ps_ez = [], [], []
 for a, b in true_edges:
     ps_ex += [ps_verts[a,0], ps_verts[b,0], None]
@@ -446,7 +446,7 @@ fig.add_trace(go.Scatter3d(
     legend='legend2',
 ))
 
-# ── Vertex labels ───────────────────────────────────────────────────────────
+# ââ Vertex labels âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 # Each vertex is an extremal gene state. Find which (Antp,Ubx,abdA,AbdB) produces it.
 # For each hull vertex, find the closest sampled point and recover its gene values.
 ps_orig_idx = ps_hull.vertices  # indices into pts_h, which maps back to flat grid
@@ -489,7 +489,7 @@ fig.add_trace(go.Scatter3d(
     ),
 ))
 
-# ── Center vertex + internal axes ───────────────────────────────────────────
+# ââ Center vertex + internal axes âââââââââââââââââââââââââââââââââââââââââââ
 center = np.array([0., 0., 0.])
 fig.add_trace(go.Scatter3d(
     x=[0], y=[0], z=[0], mode='markers+text',
@@ -504,33 +504,33 @@ fig.add_trace(go.Scatter3d(
     hovertemplate='<b>Center</b><br>H1=0 H2=0 H3=0<extra></extra>',
 ))
 
-# V4 (idx 3): (-1,0,+1) Ubx only   ←→  V8 (idx 7): (+1,0,+1) Antp only  — GREEN (H1 axis)
+# V4 (idx 3): (-1,0,+1) Ubx only   ââ  V8 (idx 7): (+1,0,+1) Antp only  â GREEN (H1 axis)
 v4 = ps_verts[3]; v8 = ps_verts[7]
 fig.add_trace(go.Scatter3d(
     x=[v4[0], center[0], v8[0]], y=[v4[1], center[1], v8[1]], z=[v4[2], center[2], v8[2]],
     mode='lines',
     line=dict(color='rgba(0,160,0,0.9)', width=5),
-    name='V4↔C↔V8 (Ubx↔Antp)',
+    name='V4âCâV8 (UbxâAntp)',
     showlegend=True, legendgroup='axis_h1',
     scene='scene',
     legend='legend2', visible='legendonly',
     hoverinfo='skip',
 ))
 
-# V1 (idx 0): (0,-1,-1) AbdB only  ←→  V2 (idx 1): (0,+1,-1) abdA only  — ORANGE (H2 axis)
+# V1 (idx 0): (0,-1,-1) AbdB only  ââ  V2 (idx 1): (0,+1,-1) abdA only  â ORANGE (H2 axis)
 v1 = ps_verts[0]; v2 = ps_verts[1]
 fig.add_trace(go.Scatter3d(
     x=[v1[0], center[0], v2[0]], y=[v1[1], center[1], v2[1]], z=[v1[2], center[2], v2[2]],
     mode='lines',
     line=dict(color='rgba(230,140,0,0.9)', width=5),
-    name='V1↔C↔V2 (AbdB↔abdA)',
+    name='V1âCâV2 (AbdBâabdA)',
     showlegend=True, legendgroup='axis_h2',
     scene='scene',
     legend='legend2', visible='legendonly',
     hoverinfo='skip',
 ))
 
-# ── Polytope center (origin) + shifted internal axes ─────────────────────
+# ââ Polytope center (origin) + shifted internal axes âââââââââââââââââââââ
 data_c = np.array([0., 0., 0.])   # polytope center = origin of H-space
 fig.add_trace(go.Scatter3d(
     x=[data_c[0]], y=[data_c[1]], z=[data_c[2]], mode='markers+text',
@@ -556,9 +556,9 @@ v4_t1 = v4 + 0.10 * (v12 - v4); v8_t1 = v8 + 0.10 * (v12 - v8)
 v4_t2 = v4 + 0.40 * (v12 - v4); v8_t2 = v8 + 0.40 * (v12 - v8)
 
 for ti, (v4t, v8t, alpha, tint, lbl) in enumerate([
-    (v4_t0, v8_t0, 0.85, 'rgba(100,220,100,0.85)', 'V4↔C*↔V8 (t=0)'),
-    (v4_t1, v8_t1, 0.80, 'rgba(60,190,60,0.80)',   'V4↔C*↔V8 (t=0.1)'),
-    (v4_t2, v8_t2, 0.75, 'rgba(30,150,30,0.75)',   'V4↔C*↔V8 (t=0.4)'),
+    (v4_t0, v8_t0, 0.85, 'rgba(100,220,100,0.85)', 'V4âC*âV8 (t=0)'),
+    (v4_t1, v8_t1, 0.80, 'rgba(60,190,60,0.80)',   'V4âC*âV8 (t=0.1)'),
+    (v4_t2, v8_t2, 0.75, 'rgba(30,150,30,0.75)',   'V4âC*âV8 (t=0.4)'),
 ]):
     fig.add_trace(go.Scatter3d(
         x=[v4t[0], data_c[0], v8t[0]], y=[v4t[1], data_c[1], v8t[1]], z=[v4t[2], data_c[2], v8t[2]],
@@ -571,12 +571,12 @@ for ti, (v4t, v8t, alpha, tint, lbl) in enumerate([
         legend='legend2', visible='legendonly',
     ))
 
-# Shifted orange (lighter tint): C* → V1 and C* → V2 directions
+# Shifted orange (lighter tint): C* â V1 and C* â V2 directions
 fig.add_trace(go.Scatter3d(
     x=[v1[0], data_c[0], v2[0]], y=[v1[1], data_c[1], v2[1]], z=[v1[2], data_c[2], v2[2]],
     mode='lines',
     line=dict(color='rgba(255,190,80,0.85)', width=5),
-    name='V1↔C*↔V2 (shifted)',
+    name='V1âC*âV2 (shifted)',
     showlegend=True, legendgroup='axis_h2_shifted',
     scene='scene',
     legend='legend2', visible='legendonly',
@@ -594,14 +594,14 @@ fig.add_trace(go.Scatter3d(
     z=[v1_b[2], data_c[2], v2_b[2]],
     mode='lines',
     line=dict(color='rgba(80,140,255,0.85)', width=5),
-    name='V1→V5↔C*↔V2→V6 (t=0.1)',
+    name='V1âV5âC*âV2âV6 (t=0.1)',
     showlegend=True, legendgroup='axis_h2_blue',
     scene='scene',
     legend='legend2', visible='legendonly',
     hoverinfo='skip',
 ))
 
-# Full theoretical bounding box [-1,1]×[-1,1]×[-2,2] (dotted, to show unreachable corners)
+# Full theoretical bounding box [-1,1]Ã[-1,1]Ã[-2,2] (dotted, to show unreachable corners)
 bb = [[-1,1],[-1,1],[-2,2]]
 bb_edges = []
 for a in bb[0]:
@@ -638,8 +638,8 @@ for i,(ex,ey,ez) in enumerate(edges):
         legend='legend2', visible='legendonly',
     ))
 
-# ── Diamond stripe planes ─────────────────────────────────────────────────
-# Build a vertex lookup: V1..V14 → coordinates
+# ââ Diamond stripe planes âââââââââââââââââââââââââââââââââââââââââââââââââ
+# Build a vertex lookup: V1..V14 â coordinates
 print("Adding diamond stripe planes ...")
 verts_dict = {}
 for vi in range(len(ps_orig_idx)):
@@ -726,38 +726,38 @@ for pi, (pname, apex_k, base_k, left_k, right_k, shift_k, shift_pct) in enumerat
         legend='legend4', visible='legendonly',
     ))
 
-    # ── Square grid wireframe ──────────────────────────────────────────────
+    # ââ Square grid wireframe ââââââââââââââââââââââââââââââââââââââââââââââ
     # The diamond has two sets of parallel edges:
-    #   Set A: apex→left  and  right→base  (left diagonal pair)
-    #   Set B: apex→right and  left→base   (right diagonal pair)
+    #   Set A: apexâleft  and  rightâbase  (left diagonal pair)
+    #   Set B: apexâright and  leftâbase   (right diagonal pair)
     # We parameterise lines parallel to Set A at intervals along Set B, and vice versa.
     #
     # For each direction, we compute edge lengths and divide by GRID_CELL_SIZE
     # to get the number of grid lines.
 
-    # Direction 1: lines parallel to apex→left / right→base
-    # These lines connect points on apex→right with points on left→base
+    # Direction 1: lines parallel to apexâleft / rightâbase
+    # These lines connect points on apexâright with points on leftâbase
     edge_len_B = np.linalg.norm(right - apex)  # length along Set B direction
     n_steps_B = max(1, int(np.round(edge_len_B / GRID_CELL_SIZE)))
 
     grid_x, grid_y, grid_z = [], [], []
     for si in range(1, n_steps_B):
         t = si / n_steps_B
-        p1 = lerp3(apex, right, t)   # point on apex→right edge
-        p2 = lerp3(left, base, t)    # corresponding point on left→base edge
+        p1 = lerp3(apex, right, t)   # point on apexâright edge
+        p2 = lerp3(left, base, t)    # corresponding point on leftâbase edge
         grid_x += [p1[0], p2[0], None]
         grid_y += [p1[1], p2[1], None]
         grid_z += [p1[2], p2[2], None]
 
-    # Direction 2: lines parallel to apex→right / left→base
-    # These lines connect points on apex→left with points on right→base
+    # Direction 2: lines parallel to apexâright / leftâbase
+    # These lines connect points on apexâleft with points on rightâbase
     edge_len_A = np.linalg.norm(left - apex)  # length along Set A direction
     n_steps_A = max(1, int(np.round(edge_len_A / GRID_CELL_SIZE)))
 
     for si in range(1, n_steps_A):
         t = si / n_steps_A
-        p1 = lerp3(apex, left, t)    # point on apex→left edge
-        p2 = lerp3(right, base, t)   # corresponding point on right→base edge
+        p1 = lerp3(apex, left, t)    # point on apexâleft edge
+        p2 = lerp3(right, base, t)   # corresponding point on rightâbase edge
         grid_x += [p1[0], p2[0], None]
         grid_y += [p1[1], p2[1], None]
         grid_z += [p1[2], p2[2], None]
@@ -776,7 +776,7 @@ for pi, (pname, apex_k, base_k, left_k, right_k, shift_k, shift_pct) in enumerat
 
     print(f"  Plane {pname}: {n_steps_A}x{n_steps_B} grid (cell~{GRID_CELL_SIZE})")
 
-# ── Precompute plane corner data for JS embedding ─────────────────────────
+# ââ Precompute plane corner data for JS embedding âââââââââââââââââââââââââ
 plane_data_js = []
 for pi, (pname, apex_k, base_k, left_k, right_k, shift_k, shift_pct) in enumerate(DIAMOND_PLANES):
     a = verts_dict[apex_k].copy()
@@ -795,7 +795,7 @@ for pi, (pname, apex_k, base_k, left_k, right_k, shift_k, shift_pct) in enumerat
         'color': [round(c, 3) for c in PLANE_COLORS[pi]],
     })
 
-# ── Cell type overlays (muscle + neuron) ──────────────────────────────────
+# ââ Cell type overlays (muscle + neuron) ââââââââââââââââââââââââââââââââââ
 print("Adding cell type overlays ...")
 muscle_mask = ann_broad == 'muscle cell'
 neuron_mask = ann_broad == 'neuron'
@@ -886,10 +886,10 @@ for cell_type, color, line_color, symbol in SPECIFIC_OVERLAYS:
         ),
     ))
 
-# ── Default colorscale for gene overlays (JS universal selector overrides) ──
+# ââ Default colorscale for gene overlays (JS universal selector overrides) ââ
 DEFAULT_GENE_CS = 'Jet'
 
-# ── Hox gene expression overlays ──────────────────────────────────────────
+# ââ Hox gene expression overlays ââââââââââââââââââââââââââââââââââââââââââ
 HOX_GENE_INFO = {
     'lab':   'labial',        'pb':   'proboscipedia',
     'Dfd':   'Deformed',      'Scr':  'Sex combs reduced',
@@ -936,7 +936,7 @@ for hi, (gene, full_name) in enumerate(HOX_GENE_INFO.items()):
         ),
     ))
 
-# ── TF / signaling gene expression overlays ────────────────────────────────
+# ââ TF / signaling gene expression overlays ââââââââââââââââââââââââââââââââ
 # Each gene shown as a 3D scatter, colored by normalized expression intensity
 # All start hidden (legendonly), toggleable in legend
 OVERLAY_GENES = {
@@ -1007,9 +1007,9 @@ for gene, full_name in OVERLAY_GENES.items():
         ),
     ))
 
-# ── Build HTML heatmap table (separate from Plotly fig) ──────────────────────
+# ââ Build HTML heatmap table (separate from Plotly fig) ââââââââââââââââââââââ
 def val_to_bg(value, hex_color):
-    """Blend white→hex_color based on expression value 0→1."""
+    """Blend whiteâhex_color based on expression value 0â1."""
     r, g, b = hex_to_rgb(hex_color)
     r2 = int(255 - value * (255 - r))
     g2 = int(255 - value * (255 - g))
@@ -1057,13 +1057,13 @@ for t in tris_info:
 
 matrix_table_html = '<table class="mx-table">' + ''.join(matrix_rows_html) + '</table>'
 
-# ── Layout (Plotly legend disabled — custom HTML panels instead) ──────────
+# ââ Layout (Plotly legend disabled â custom HTML panels instead) ââââââââââ
 fig.update_layout(
     scene=dict(
         domain=dict(x=[0, 1], y=[0, 1]),
-        xaxis=dict(title='H1 (Antp−Ubx)', showgrid=True, gridcolor='rgba(200,200,220,0.4)'),
-        yaxis=dict(title='H2 (abdA−AbdB)', showgrid=True, gridcolor='rgba(200,200,220,0.4)'),
-        zaxis=dict(title='H3 (Antp+Ubx−abdA−AbdB)', showgrid=True, gridcolor='rgba(200,200,220,0.4)'),
+        xaxis=dict(title='H1 (AntpâUbx)', showgrid=True, gridcolor='rgba(200,200,220,0.4)'),
+        yaxis=dict(title='H2 (abdAâAbdB)', showgrid=True, gridcolor='rgba(200,200,220,0.4)'),
+        zaxis=dict(title='H3 (Antp+UbxâabdAâAbdB)', showgrid=True, gridcolor='rgba(200,200,220,0.4)'),
         aspectmode='data',
     ),
     showlegend=False,
@@ -1073,7 +1073,7 @@ fig.update_layout(
     margin=dict(l=20, r=20, t=30, b=20),
 )
 
-# ── Build trace registry for custom HTML legend panels ────────────────────
+# ââ Build trace registry for custom HTML legend panels ââââââââââââââââââââ
 import json as json_module
 import re as re_module
 
@@ -1123,7 +1123,7 @@ def get_trace_color(trace):
             if trace.mode and 'lines' in trace.mode and trace.line and trace.line.color:
                 return str(trace.line.color)
             if trace.marker:
-                # Named colorscale → return gradient swatch
+                # Named colorscale â return gradient swatch
                 cs = trace.marker.colorscale
                 if cs is not None and isinstance(cs, str) and cs in CS_SWATCH:
                     return CS_SWATCH[cs]
@@ -1196,7 +1196,7 @@ for pid, title in PANELS:
         })
     js_panels.append({'id': pid, 'title': title, 'items': items_list})
 
-# ── Generate Hox Morphospace Explorer HTML ────────────────────────────────
+# ââ Generate Hox Morphospace Explorer HTML ââââââââââââââââââââââââââââââââ
 print("Generating Hox Morphospace Explorer ...")
 fig_json = fig.to_json()
 fig_json_safe = fig_json.replace('</', r'<\/')
@@ -1234,7 +1234,7 @@ body {{ font-family: 'Segoe UI', Tahoma, sans-serif; background: #eef0f4; overfl
 
 #main {{ display: flex; height: calc(100vh - 46px); }}
 
-/* ── 3D section (60%) ─────────────────────────────────── */
+/* ââ 3D section (60%) âââââââââââââââââââââââââââââââââââ */
 #sec-3d {{ display: flex; flex: 6; min-width: 0; }}
 #chart {{ flex: 1; min-width: 0; background: white; }}
 #panels-3d {{
@@ -1245,7 +1245,7 @@ body {{ font-family: 'Segoe UI', Tahoma, sans-serif; background: #eef0f4; overfl
 #panels-3d::-webkit-scrollbar {{ width: 5px; }}
 #panels-3d::-webkit-scrollbar-thumb {{ background: #bbb; border-radius: 3px; }}
 
-/* ── 2D Plane Projector section (40%) ─────────────────── */
+/* ââ 2D Plane Projector section (40%) âââââââââââââââââââ */
 #sec-2d {{ display: flex; flex: 4; min-width: 0; border-left: 2px solid #d0d3db; }}
 #plane2d {{
     flex: 1; min-width: 0;
@@ -1266,7 +1266,7 @@ body {{ font-family: 'Segoe UI', Tahoma, sans-serif; background: #eef0f4; overfl
 #panels-2d::-webkit-scrollbar {{ width: 5px; }}
 #panels-2d::-webkit-scrollbar-thumb {{ background: #bbb; border-radius: 3px; }}
 
-/* ── Matrix section ───────────────────────────────────── */
+/* ââ Matrix section âââââââââââââââââââââââââââââââââââââ */
 #sec-matrix {{
     width: 220px; min-width: 220px;
     background: #f4f5f9; border-left: 2px solid #d0d3db;
@@ -1347,7 +1347,7 @@ body {{ font-family: 'Segoe UI', Tahoma, sans-serif; background: #eef0f4; overfl
 }}
 .li.off {{ opacity: 0.4; }}
 
-/* ── Gene Search panel ──────────────────────────────────────────────── */
+/* ââ Gene Search panel ââââââââââââââââââââââââââââââââââââââââââââââââ */
 .search-row {{
     display: flex; gap: 4px; padding: 4px 6px; align-items: center;
 }}
@@ -1383,7 +1383,7 @@ body {{ font-family: 'Segoe UI', Tahoma, sans-serif; background: #eef0f4; overfl
 .gl-num {{ color: #999; font-size: 9.5px; min-width: 20px; text-align: right; }}
 .gl-name {{ flex: 1; }}
 .gl-cnt {{ color: #aaa; font-size: 9px; }}
-/* ── cutoff slider ───────────────────────────────────────────────── */
+/* ââ cutoff slider âââââââââââââââââââââââââââââââââââââââââââââââââ */
 .cutoff-row {{
     display: flex; align-items: center; gap: 5px;
     padding: 4px 6px; font-size: 10px; color: #555;
@@ -1411,7 +1411,7 @@ body {{ font-family: 'Segoe UI', Tahoma, sans-serif; background: #eef0f4; overfl
 }}
 .loaded-item .lx:hover {{ color: #f00; }}
 
-/* ── Plane Projector panel ─────────────────────────────────────────── */
+/* ââ Plane Projector panel âââââââââââââââââââââââââââââââââââââââââââ */
 .proj-row {{
     display: flex; align-items: center; gap: 5px;
     padding: 4px 6px; font-size: 10px; color: #555;
@@ -1428,7 +1428,7 @@ body {{ font-family: 'Segoe UI', Tahoma, sans-serif; background: #eef0f4; overfl
 }}
 .proj-row .pv {{ font-weight: 600; min-width: 30px; text-align: right; }}
 
-/* ── Colorscheme selector ──────────────────────────────────────────── */
+/* ââ Colorscheme selector ââââââââââââââââââââââââââââââââââââââââââââ */
 .cs-panel {{ padding: 5px 6px; }}
 .cs-panel .cs-title {{
     font-size: 10px; font-weight: 600; color: #555;
@@ -1465,7 +1465,7 @@ body {{ font-family: 'Segoe UI', Tahoma, sans-serif; background: #eef0f4; overfl
     </div>
     <div id="sec-2d">
         <div id="plane2d">
-            <div id="plane2d-placeholder">Select a plane and<br>data source in the<br>Plane Projector panel →</div>
+            <div id="plane2d-placeholder">Select a plane and<br>data source in the<br>Plane Projector panel â</div>
             <div id="plane2d-chart" style="display:none;"></div>
         </div>
         <div id="panels-2d"></div>
@@ -1489,9 +1489,9 @@ Plotly.newPlot('chart', defined.data, defined.layout, {{
     modeBarButtonsToRemove: ['toImage'],
 }});
 
-/* ══════════════════════════════════════════════════════════════════════
+/* ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
    Universal Colorscheme Selector
-   ══════════════════════════════════════════════════════════════════════ */
+   ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 var CS_DEFS = [
     {{ name: 'Jet',      gradient: 'linear-gradient(90deg,#00f,#0ff,#0f0,#ff0,#f00)' }},
     {{ name: 'Viridis',  gradient: 'linear-gradient(90deg,#440154,#31688e,#35b779,#fde725)' }},
@@ -1564,7 +1564,7 @@ function restyleAllToCS() {{
     if (typeof window._updateProjection === 'function') window._updateProjection();
 }}
 
-/* ── build legend panels ─────────────────────────────────────────────── */
+/* ââ build legend panels âââââââââââââââââââââââââââââââââââââââââââââââ */
 var $p = document.getElementById('panels-3d');
 
 panels.forEach(function(pan) {{
@@ -1618,7 +1618,7 @@ panels.forEach(function(pan) {{
     $p.appendChild(d);
 }});
 
-/* ── toggle all in a panel ───────────────────────────────────────────── */
+/* ââ toggle all in a panel âââââââââââââââââââââââââââââââââââââââââââââ */
 function togAll(pid, on) {{
     var pan = panels.find(function(p) {{ return p.id === pid; }});
     if (!pan) return;
@@ -1633,9 +1633,9 @@ function togAll(pid, on) {{
     if (allIdx.length) Plotly.restyle('chart', {{visible: on}}, allIdx);
 }}
 
-/* ══════════════════════════════════════════════════════════════════════
-   Gene Expression panel – cutoff slider
-   ══════════════════════════════════════════════════════════════════════ */
+/* ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+   Gene Expression panel â cutoff slider
+   ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 (function() {{
     /* find the gene_expr panel and its body */
     var gePan = panels.find(function(p) {{ return p.id === 'gene_expr'; }});
@@ -1689,7 +1689,7 @@ function togAll(pid, on) {{
                     }}, [idx]);
                     return;
                 }}
-                /* filter by threshold — color array holds normalised expression */
+                /* filter by threshold â color array holds normalised expression */
                 var xF = [], yF = [], zF = [], cF = [], cdF = [];
                 for (var k = 0; k < od.color.length; k++) {{
                     if (od.color[k] >= geCutoff) {{
@@ -1710,18 +1710,18 @@ function togAll(pid, on) {{
     }}
 }})();
 
-/* ══════════════════════════════════════════════════════════════════════
+/* ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
    Gene Search panel
-   ══════════════════════════════════════════════════════════════════════ */
+   ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 (function() {{
     var curMatches = geneBank.slice();  /* current filtered list */
     var hlIdx = -1;                     /* highlighted index in curMatches */
-    var loaded = [];                    /* {{name, traceIdx, hue, n}} — visible items */
+    var loaded = [];                    /* {{name, traceIdx, hue, n}} â visible items */
     window._geneSearchLoaded = loaded;  /* expose for Plane Projector */
-    var hidden = {{}};                   /* geneName → traceIdx  (hidden, not deleted) */
+    var hidden = {{}};                   /* geneName â traceIdx  (hidden, not deleted) */
     var dynCount = 0;
 
-    /* ── build panel DOM ──────────────────────────────────────────────── */
+    /* ââ build panel DOM ââââââââââââââââââââââââââââââââââââââââââââââââ */
     var pan = document.createElement('div'); pan.className = 'panel';
 
     var hd = document.createElement('div'); hd.className = 'p-head';
@@ -1779,7 +1779,7 @@ function togAll(pid, on) {{
     pan.appendChild(hd); pan.appendChild(bd);
     document.getElementById('panels-3d').appendChild(pan);
 
-    /* ── render gene list ─────────────────────────────────────────────── */
+    /* ââ render gene list âââââââââââââââââââââââââââââââââââââââââââââââ */
     function renderList() {{
         glist.innerHTML = '';
         curMatches.forEach(function(g, i) {{
@@ -1810,7 +1810,7 @@ function togAll(pid, on) {{
         renderList();
     }}
 
-    /* ── input handling ───────────────────────────────────────────────── */
+    /* ââ input handling âââââââââââââââââââââââââââââââââââââââââââââââââ */
     inp.addEventListener('input', function() {{
         var v = inp.value.trim();
         if (/^[0-9]+$/.test(v)) {{
@@ -1819,10 +1819,10 @@ function togAll(pid, on) {{
             if (num >= 1 && num <= curMatches.length) {{
                 hlIdx = num - 1;
                 renderList();
-                hint.textContent = '→ ' + curMatches[hlIdx].name
+                hint.textContent = 'â ' + curMatches[hlIdx].name
                     + ' (' + curMatches[hlIdx].n.toLocaleString() + ' cells)';
             }} else {{
-                hint.textContent = '# out of range (1–' + curMatches.length + ')';
+                hint.textContent = '# out of range (1â' + curMatches.length + ')';
             }}
         }} else if (v.length > 0) {{
             filterGenes(v);
@@ -1843,11 +1843,11 @@ function togAll(pid, on) {{
         if (e.key === 'ArrowDown') {{
             e.preventDefault();
             if (hlIdx < curMatches.length - 1) {{ hlIdx++; renderList(); }}
-            if (hlIdx >= 0) hint.textContent = '→ ' + curMatches[hlIdx].name;
+            if (hlIdx >= 0) hint.textContent = 'â ' + curMatches[hlIdx].name;
         }} else if (e.key === 'ArrowUp') {{
             e.preventDefault();
             if (hlIdx > 0) {{ hlIdx--; renderList(); }}
-            if (hlIdx >= 0) hint.textContent = '→ ' + curMatches[hlIdx].name;
+            if (hlIdx >= 0) hint.textContent = 'â ' + curMatches[hlIdx].name;
         }} else if (e.key === 'Enter') {{
             e.preventDefault();
             if (hlIdx >= 0 && hlIdx < curMatches.length) {{
@@ -1862,7 +1862,7 @@ function togAll(pid, on) {{
         }}
     }};
 
-    /* ── load a gene as a new Plotly trace ─────────────────────────────── */
+    /* ââ load a gene as a new Plotly trace âââââââââââââââââââââââââââââââ */
     function loadGene(g) {{
         /* already visible? */
         for (var i = 0; i < loaded.length; i++) {{
@@ -1878,7 +1878,7 @@ function togAll(pid, on) {{
             Plotly.restyle('chart', {{visible: true}}, [h.traceIdx]);
             loaded.push({{ name: g.name, traceIdx: h.traceIdx, cs: h.cs, n: g.n, raw: g }});
             delete hidden[g.name];
-            hint.textContent = '✓ Re-shown ' + g.name + ' (' + g.n.toLocaleString() + ' cells)';
+            hint.textContent = 'â Re-shown ' + g.name + ' (' + g.n.toLocaleString() + ' cells)';
             applyThresholdSingle(loaded[loaded.length - 1]);
             renderLoaded();
             return;
@@ -1920,12 +1920,12 @@ function togAll(pid, on) {{
         var traceIdx = document.getElementById('chart').data.length - 1;
 
         loaded.push({{ name: g.name, traceIdx: traceIdx, cs: csName, n: g.n, raw: g }});
-        hint.textContent = '✓ Loaded ' + g.name + ' [' + csName + '] (' + g.n.toLocaleString() + ' cells)';
+        hint.textContent = 'â Loaded ' + g.name + ' [' + csName + '] (' + g.n.toLocaleString() + ' cells)';
         if (cutoff > 0) applyThresholdSingle(loaded[loaded.length - 1]);
         renderLoaded();
     }}
 
-    /* ── render loaded genes ──────────────────────────────────────────── */
+    /* ââ render loaded genes ââââââââââââââââââââââââââââââââââââââââââââ */
     function renderLoaded() {{
         lsep.style.display = loaded.length > 0 ? '' : 'none';
         ldiv.innerHTML = '';
@@ -1948,10 +1948,10 @@ function togAll(pid, on) {{
             nm.style.fontSize = '10.5px';
 
             var xb = document.createElement('span'); xb.className = 'lx';
-            xb.textContent = '×';
+            xb.textContent = 'Ã';
             xb.title = 'Remove';
             xb.onclick = function() {{
-                /* hide trace (don't delete — avoids index shifting bugs) */
+                /* hide trace (don't delete â avoids index shifting bugs) */
                 Plotly.restyle('chart', {{visible: false}}, [lg.traceIdx]);
                 hidden[lg.name] = {{ traceIdx: lg.traceIdx, cs: lg.cs }};
                 loaded.splice(li, 1);
@@ -1964,7 +1964,7 @@ function togAll(pid, on) {{
         }});
     }}
 
-    /* ── expression threshold filtering ─────────────────────────────── */
+    /* ââ expression threshold filtering âââââââââââââââââââââââââââââââ */
     function applyThresholdSingle(lg) {{
         var g = lg.raw;
         if (!g) return;
@@ -1996,11 +1996,11 @@ function togAll(pid, on) {{
     renderList();
 }})();
 
-/* ══════════════════════════════════════════════════════════════════════
+/* ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
    Plane Projector
-   ══════════════════════════════════════════════════════════════════════ */
+   ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 (function() {{
-    /* ── vector helpers ───────────────────────────────────────────────── */
+    /* ââ vector helpers âââââââââââââââââââââââââââââââââââââââââââââââââ */
     function vsub(a,b) {{ return [a[0]-b[0],a[1]-b[1],a[2]-b[2]]; }}
     function vdot(a,b) {{ return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]; }}
     function vcross(a,b) {{ return [a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]]; }}
@@ -2013,7 +2013,7 @@ function togAll(pid, on) {{
     var gridRes = 10;
     var distThresh = 0.5;
 
-    /* ── build panel DOM ─────────────────────────────────────────────── */
+    /* ââ build panel DOM âââââââââââââââââââââââââââââââââââââââââââââââ */
     var pan = document.createElement('div'); pan.className = 'panel';
 
     var hd = document.createElement('div'); hd.className = 'p-head';
@@ -2029,7 +2029,7 @@ function togAll(pid, on) {{
     var r1 = document.createElement('div'); r1.className = 'proj-row';
     var l1 = document.createElement('label'); l1.textContent = 'Plane:';
     var selP = document.createElement('select');
-    var opt0 = document.createElement('option'); opt0.value = ''; opt0.textContent = '— select plane —';
+    var opt0 = document.createElement('option'); opt0.value = ''; opt0.textContent = 'â select plane â';
     selP.appendChild(opt0);
     planesDef.forEach(function(pd, pi) {{
         var o = document.createElement('option'); o.value = pi;
@@ -2043,7 +2043,7 @@ function togAll(pid, on) {{
     var l2 = document.createElement('label'); l2.textContent = 'Data:';
     var selD = document.createElement('select');
     selD.id = 'proj-data-sel';
-    var od0 = document.createElement('option'); od0.value = ''; od0.textContent = '— select data —';
+    var od0 = document.createElement('option'); od0.value = ''; od0.textContent = 'â select data â';
     selD.appendChild(od0);
 
     /* populate from panels: cell_types and gene_expr */
@@ -2109,7 +2109,7 @@ function togAll(pid, on) {{
     pan.appendChild(hd); pan.appendChild(bd);
     document.getElementById('panels-2d').appendChild(pan);
 
-    /* ── event handlers ──────────────────────────────────────────────── */
+    /* ââ event handlers ââââââââââââââââââââââââââââââââââââââââââââââââ */
     selP.onchange = function() {{
         selPlane = selP.value === '' ? -1 : parseInt(selP.value);
         updateProjection();
@@ -2129,7 +2129,7 @@ function togAll(pid, on) {{
         updateProjection();
     }};
 
-    /* ── projection logic ────────────────────────────────────────────── */
+    /* ââ projection logic ââââââââââââââââââââââââââââââââââââââââââââââ */
     var chart2d = document.getElementById('plane2d-chart');
     var placeholder = document.getElementById('plane2d-placeholder');
     var chart3d = document.getElementById('chart');
@@ -2162,7 +2162,7 @@ function togAll(pid, on) {{
         /* diamond corners in 2D */
         var cA = to2d(apex), cL = to2d(left), cB = to2d(base), cR = to2d(right);
 
-        /* ── background: all cells within distance ───────────────────── */
+        /* ââ background: all cells within distance âââââââââââââââââââââ */
         var bgX = [], bgY = [];
         for (var i = 0; i < coords.h1.length; i++) {{
             var off = [coords.h1[i]-apex[0], coords.h2[i]-apex[1], coords.h3[i]-apex[2]];
@@ -2173,7 +2173,7 @@ function togAll(pid, on) {{
             }}
         }}
 
-        /* ── foreground: selected data source ────────────────────────── */
+        /* ââ foreground: selected data source ââââââââââââââââââââââââââ */
         var fgX = [], fgY = [], fgC = [], fgText = [];
         var fgIsGene = false;
         var fgColor = '#e74c3c';
@@ -2247,11 +2247,11 @@ function togAll(pid, on) {{
             }}
         }}
 
-        /* ── diamond grid lines ──────────────────────────────────────── */
+        /* ââ diamond grid lines ââââââââââââââââââââââââââââââââââââââââ */
         function lerp2(a, b, t) {{ return [a[0]+t*(b[0]-a[0]), a[1]+t*(b[1]-a[1])]; }}
         var gridXs = [], gridYs = [];
 
-        /* set 1: lines parallel to apex→base, at intervals along apex→left / apex→right */
+        /* set 1: lines parallel to apexâbase, at intervals along apexâleft / apexâright */
         for (var s = 1; s < gridRes; s++) {{
             var t = s / gridRes;
             /* left side: from lerp(apex,left,t) to lerp(base,left,t) */
@@ -2264,39 +2264,39 @@ function togAll(pid, on) {{
         /* central line */
         gridXs.push(cA[0], cB[0], null); gridYs.push(cA[1], cB[1], null);
 
-        /* set 2: cross lines (parallel to left→right) at intervals along apex→base */
+        /* set 2: cross lines (parallel to leftâright) at intervals along apexâbase */
         for (var s = 1; s < gridRes; s++) {{
             var t = s / gridRes;
             /* from lerp(apex,left,t) + lerp adjustment to lerp(apex,right,t) */
             var pL = lerp2(cA, cL, t);
             var pR = lerp2(cA, cR, t);
-            /* extend to base side: lerp(base,left,t) ↔ lerp(base,right,t) */
-            /* cross line at fraction t along apex→base:
-               left end = lerp( lerp(apex,left,s), lerp(base,left,s), ... ) — hmm
+            /* extend to base side: lerp(base,left,t) â lerp(base,right,t) */
+            /* cross line at fraction t along apexâbase:
+               left end = lerp( lerp(apex,left,s), lerp(base,left,s), ... ) â hmm
                Simpler: at fraction t along the central axis, the cross line spans
                from the left edge to the right edge */
             var leftEdge1 = lerp2(cA, cL, 1);   /* = cL */
-            var leftEdge2 = lerp2(cB, cL, 1);   /* = cL, no — need parameterize differently */
-            /* The diamond edges: apex→left, left→base, base→right, right→apex
+            var leftEdge2 = lerp2(cB, cL, 1);   /* = cL, no â need parameterize differently */
+            /* The diamond edges: apexâleft, leftâbase, baseâright, rightâapex
                At fraction t from apex toward base:
-               - left boundary = lerp(apex→left @ t) if t<1, or lerp(left→base @ t-...) */
+               - left boundary = lerp(apexâleft @ t) if t<1, or lerp(leftâbase @ t-...) */
             /* Simplify: treat diamond as two triangles. Upper: apex-left-right. Lower: left-base-right.
                At fraction t (0=apex, 1=base), in upper half (t<=0.5 mapped):
                Actually, parametrize by e2 coordinate. */
         }}
 
         /* Better approach for cross lines: use the diamond parameterization directly.
-           For fraction t along apex→base direction:
-           - the left point is on edge apex→left (if in upper half) or left→base (lower half)
-           - the right point is on edge apex→right (if in upper half) or right→base (lower half)
+           For fraction t along apexâbase direction:
+           - the left point is on edge apexâleft (if in upper half) or leftâbase (lower half)
+           - the right point is on edge apexâright (if in upper half) or rightâbase (lower half)
            Diamond: apex(top), left, base(bottom), right.
-           Upper half = apex→left + apex→right, lower half = left→base + right→base. */
+           Upper half = apexâleft + apexâright, lower half = leftâbase + rightâbase. */
         /* Actually cleaner: just parametrize by e2 fraction from apex to base */
         var e2_apex = cA[1], e2_base = cB[1];
         /* Clear old cross lines attempt and redo */
         gridXs = []; gridYs = [];
 
-        /* Set 1: lines parallel to central line (apex→base direction) */
+        /* Set 1: lines parallel to central line (apexâbase direction) */
         /* Along the left side of diamond */
         for (var s = 1; s < gridRes; s++) {{
             var t = s / gridRes;
@@ -2312,22 +2312,22 @@ function togAll(pid, on) {{
         /* central line */
         gridXs.push(cA[0], cB[0], null); gridYs.push(cA[1], cB[1], null);
 
-        /* Set 2: cross lines — parallel to left↔right at intervals along apex→base.
+        /* Set 2: cross lines â parallel to leftâright at intervals along apexâbase.
            At fraction t: left edge point = lerp(apex, left, t) going to lerp(apex, right, t)
            AND continuing the "lower" portion: lerp(left, base, t) to lerp(right, base, t) */
         for (var s = 1; s < gridRes; s++) {{
             var t = s / gridRes;
-            /* upper cross: connects point on apex→left with point on apex→right */
+            /* upper cross: connects point on apexâleft with point on apexâright */
             var pL = lerp2(cA, cL, t);
             var pR = lerp2(cA, cR, t);
             gridXs.push(pL[0], pR[0], null); gridYs.push(pL[1], pR[1], null);
-            /* lower cross: connects point on left→base with point on right→base */
+            /* lower cross: connects point on leftâbase with point on rightâbase */
             var qL = lerp2(cL, cB, t);
             var qR = lerp2(cR, cB, t);
             gridXs.push(qL[0], qR[0], null); gridYs.push(qL[1], qR[1], null);
         }}
 
-        /* ── build 2D plot traces ────────────────────────────────────── */
+        /* ââ build 2D plot traces ââââââââââââââââââââââââââââââââââââââ */
         var pc = pd.color;
         var pcStr = 'rgba(' + Math.round(pc[0]*255) + ',' + Math.round(pc[1]*255) + ','
                     + Math.round(pc[2]*255) + ',';
@@ -2391,11 +2391,11 @@ function togAll(pid, on) {{
             traces.push(fgTrace);
         }}
 
-        /* ── layout ──────────────────────────────────────────────────── */
+        /* ââ layout ââââââââââââââââââââââââââââââââââââââââââââââââââââ */
         var layout2d = {{
             margin: {{ l: 35, r: 50, t: 30, b: 35 }},
             paper_bgcolor: 'white', plot_bgcolor: '#fafafa',
-            title: {{ text: fgName + ' → ' + pd.name, font: {{ size: 11 }}, x: 0.5 }},
+            title: {{ text: fgName + ' â ' + pd.name, font: {{ size: 11 }}, x: 0.5 }},
             xaxis: {{
                 title: {{ text: 'e1 (lateral)', font: {{ size: 9 }} }},
                 scaleanchor: 'y', scaleratio: 1,
@@ -2424,6 +2424,112 @@ function togAll(pid, on) {{
 </script>
 </body>
 </html>'''
+
+# Mobile tabbed layout (added post-build; desktop layout unaffected).
+# Stacks the 5 desktop columns into full-width cards behind a sticky
+# tab bar [3D | Controls | 2D | Matrix] on screens <= 820px wide.
+
+MOBILE_CSS = r"""
+/* ===== Mobile tabbed layout (added; desktop unaffected) ===== */
+#mobile-tabs { display: none; }
+@media (max-width: 820px) {
+  html, body { overflow-x: hidden; }
+  body { overflow-y: auto; -webkit-text-size-adjust: 100%; }
+
+  #header { position: sticky; top: 0; z-index: 50; padding: 8px 12px; }
+  #header h1 { font-size: 16px; margin: 0; }
+  #header .sub { display: none; }
+
+  #mobile-tabs {
+    display: flex; position: sticky; top: 40px; z-index: 50;
+    background: #1f2733; border-bottom: 1px solid #0c0f14;
+  }
+  #mobile-tabs button {
+    flex: 1; padding: 12px 4px; border: none; background: #1f2733;
+    color: #c4ccd6; font-size: 13px; font-weight: 600; cursor: pointer;
+    border-bottom: 3px solid transparent; -webkit-tap-highlight-color: transparent;
+  }
+  #mobile-tabs button.active { color: #fff; border-bottom-color: #2ea44f; background: #28323f; }
+
+  #main { flex-direction: column; height: auto; }
+
+  #sec-3d, #sec-2d, #sec-matrix {
+    flex: none; width: 100%; min-width: 0; border-left: none; display: none;
+  }
+  #sec-3d { flex-direction: column; }
+  #chart { width: 100%; height: 76vh; min-width: 0; }
+  #panels-3d { width: 100%; min-width: 0; max-height: none; height: auto; overflow: visible; }
+
+  #sec-2d { flex-direction: column; }
+  #plane2d { width: 100%; min-height: 55vh; }
+  #plane2d-chart { width: 100%; height: 68vh; }
+  #panels-2d { width: 100%; min-width: 0; max-height: none; height: auto; overflow: visible; }
+
+  #sec-matrix { width: 100%; overflow-x: auto; padding: 8px; }
+  #sec-matrix .mx-table { font-size: 11px; }
+  #sec-matrix .mx-table th, #sec-matrix .mx-table td { min-width: 22px; padding: 3px; }
+
+  /* active-tab visibility (driven by body class) */
+  body.m-3d   #sec-3d { display: flex; }
+  body.m-3d   #panels-3d { display: none; }
+  body.m-ctrl #sec-3d { display: flex; }
+  body.m-ctrl #chart { display: none; }
+  body.m-2d   #sec-2d { display: flex; }
+  body.m-mtx  #sec-matrix { display: block; }
+
+  /* larger touch targets */
+  .p-head { min-height: 40px; }
+  .gl-item { min-height: 34px; }
+  .cutoff-row input[type="range"] { height: 26px; }
+}
+"""
+
+MOBILE_TABBAR = r"""
+<div id="mobile-tabs">
+  <button data-tab="3d" class="active">3D&nbsp;View</button>
+  <button data-tab="ctrl">Controls</button>
+  <button data-tab="2d">2D&nbsp;Plane</button>
+  <button data-tab="mtx">Matrix</button>
+</div>
+"""
+
+MOBILE_JS = r"""
+<script>
+/* ===== Mobile tab switcher (added; no-op on desktop) ===== */
+(function(){
+  var tabs = document.getElementById('mobile-tabs');
+  if(!tabs) return;
+  var cmap = {'3d':'m-3d','ctrl':'m-ctrl','2d':'m-2d','mtx':'m-mtx'};
+  function resizeVisible(tab){
+    try {
+      if(tab==='3d'){ var c=document.getElementById('chart'); if(c && window.Plotly) Plotly.Plots.resize(c); }
+      else if(tab==='2d'){ var c2=document.getElementById('plane2d-chart'); if(c2 && c2.style.display!=='none' && window.Plotly) Plotly.Plots.resize(c2); }
+    } catch(e){}
+  }
+  function activate(tab){
+    var b = document.body;
+    b.classList.remove('m-3d','m-ctrl','m-2d','m-mtx');
+    b.classList.add(cmap[tab]);
+    Array.prototype.forEach.call(tabs.children, function(btn){
+      btn.classList.toggle('active', btn.getAttribute('data-tab')===tab);
+    });
+    window.scrollTo(0,0);
+    setTimeout(function(){ resizeVisible(tab); }, 80);
+  }
+  Array.prototype.forEach.call(tabs.children, function(btn){
+    btn.addEventListener('click', function(){ activate(btn.getAttribute('data-tab')); });
+  });
+  var mq = window.matchMedia('(max-width: 820px)');
+  function applyMode(){ if(mq.matches && !/m-(3d|ctrl|2d|mtx)/.test(document.body.className)) activate('3d'); }
+  applyMode();
+  if(mq.addEventListener) mq.addEventListener('change', applyMode); else if(mq.addListener) mq.addListener(applyMode);
+})();
+</script>
+"""
+
+html = html.replace('</style>', MOBILE_CSS + '\n</style>', 1)
+html = html.replace('<div id="main">', MOBILE_TABBAR + '\n<div id="main">', 1)
+html = html.replace('</body>', MOBILE_JS + '\n</body>', 1)
 
 out = f"{OUTPUT_DIR}/hox_morphospace_explorer.html"
 with open(out, 'w', encoding='utf-8') as fout:
